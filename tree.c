@@ -10,6 +10,8 @@
 #define MAX_OUTPUT 613
 #define FIELD_LEN 129
 #define MAX_TITLES 11
+#define DEPTH 2
+#define COUNT 10
 
 void
 free_data(data_t *data) {
@@ -28,7 +30,7 @@ free_data(data_t *data) {
 
 /* Stuff from listops.c */
 /* =====================================================================
-   Programs (free_list) and (insert_at_foot) were written by Alistair Moffat, as an
+   Program (free_list) was written by Alistair Moffat, as an
    example for the book and modified by me, Julius Miguel Bernaudo
    "Programming, Problem Solving, and Abstraction with C", Pearson
    Custom Books, Sydney, Australia, 2002; revised edition 2012,
@@ -39,7 +41,7 @@ free_data(data_t *data) {
 
    Prepared December 2012 for the Revised Edition.
    ================================================================== */
-void
+/*void
 free_list(list_t *list) {
 	node_t *curr, *prev;
 	assert(list!=NULL);
@@ -51,22 +53,24 @@ free_list(list_t *list) {
 		free(prev);
 	}
 	free(list);
-}
+} */
 
 list_t
-*insert_at_foot(list_t *list, data_t *value) {
+*insert_in_tree(list_t *list, data_t *value) {
+    int level = 0;
 	node_t *new;
 	new = (node_t*)malloc(sizeof(*new));
 	assert(list!=NULL && new!=NULL);
 	new->data = *value;
-	new->next = NULL;
+	new->right = NULL;
+    new->left = NULL;
+    new->duplicate = NULL;
     
-	if (list->foot==NULL) {
+	if (list->head==NULL) {
 		/* this is the first insertion into the list */
 		list->head = list->foot = new;
 	} else {
-		list->foot->next = new;
-		list->foot = new;
+        insert_node(list->head, new, level);
 	}
 	return list;
 }
@@ -96,32 +100,32 @@ insert_data(data_t *data, char dataArray[MAX_TITLES][MAX_BUFFER]) {
 and keep the code clean and simple to read */
 void 
 initialise_data(data_t *data, char dataArray[MAX_TITLES][MAX_BUFFER]) {
-    data -> year = (char *)malloc(strlen(dataArray[0])+1*sizeof(char));
-    data -> block = (char *)malloc(strlen(dataArray[1])+1*sizeof(char));
-    data -> property = (char *)malloc(strlen(dataArray[2])+1*sizeof(char));
-    data -> base = (char *)malloc(strlen(dataArray[3])+1*sizeof(char));
-    data -> city = (char *)malloc(strlen(dataArray[4])+1*sizeof(char));
-    data -> name = (char *)malloc(strlen(dataArray[5])+1*sizeof(char));
-    data -> code = (char *)malloc(strlen(dataArray[6])+1*sizeof(char));
-    data -> desc = (char *)malloc(strlen(dataArray[7])+1*sizeof(char));
-    data -> xCordStr = (char *)malloc(strlen(dataArray[8])+1*sizeof(char));
-    data -> yCordStr = (char *)malloc(strlen(dataArray[9])+1*sizeof(char));
-    data -> location = (char *)malloc(strlen(dataArray[10])+1*sizeof(char));
+    data -> year = (char *)malloc(strlen(dataArray[0])+2*sizeof(char));
+    data -> block = (char *)malloc(strlen(dataArray[1])+2*sizeof(char));
+    data -> property = (char *)malloc(strlen(dataArray[2])+2*sizeof(char));
+    data -> base = (char *)malloc(strlen(dataArray[3])+2*sizeof(char));
+    data -> city = (char *)malloc(strlen(dataArray[4])+2*sizeof(char));
+    data -> name = (char *)malloc(strlen(dataArray[5])+2*sizeof(char));
+    data -> code = (char *)malloc(strlen(dataArray[6])+2*sizeof(char));
+    data -> desc = (char *)malloc(strlen(dataArray[7])+2*sizeof(char));
+    data -> xCordStr = (char *)malloc(strlen(dataArray[8])+2*sizeof(char));
+    data -> yCordStr = (char *)malloc(strlen(dataArray[9])+2*sizeof(char));
+    data -> location = (char *)malloc(strlen(dataArray[10])+2*sizeof(char));
 }
 
 /* Scans through the list searching for any string matches with the key */
-void
+/*void
 search_data(list_t *list, char *key, FILE *output, char titles[MAX_TITLES][FIELD_LEN]) {
     int cmpResult;
     int matchFound = 1;
     node_t *curr;
     curr = (node_t*)malloc(sizeof(*curr));
     assert(curr!=NULL);
-    curr = list -> head;
+    curr = list -> head; */
     
     /* Traversing the linked list and using the string comparison tool 
     to check whether the key and name match */
-    while(curr) {
+    /*while(curr) {
         cmpResult = strcmp(curr -> data.name, key);
         if (cmpResult == 0) {
             output_string(&(curr -> data), output, titles);
@@ -134,7 +138,7 @@ search_data(list_t *list, char *key, FILE *output, char titles[MAX_TITLES][FIELD
         fputs(key, output);
         fputs(" -->NOTFOUND\n", output);
     }
-}
+} */
 
 /* Removing any double quotations from the data while maintaining
 any quotations that are part of the string itself */
@@ -229,3 +233,83 @@ output_string(data_t *data, FILE *output, char titles[MAX_TITLES][FIELD_LEN]) {
     strcat(outputStr, "\n");
     fputs(outputStr, output);
 }
+
+void
+insert_node(node_t *curr, node_t *new, int level) {
+    if ((new->data.xCoord == curr->data.xCoord) && (new->data.yCoord == curr->data.yCoord)) {
+        if (curr->duplicate == NULL) {
+            curr->duplicate = new;
+            return;
+        } else {
+            insert_node(curr->duplicate, new, level + 1);
+        }
+    } else {
+        if (level % DEPTH == 0) {
+            if (new->data.xCoord < curr->data.xCoord) {
+                if (curr->left == NULL) {
+                    curr->left = new;
+                    return;
+                } else {
+                    insert_node(curr->left, new, level + 1);
+                }
+            } else {
+                if (curr->right == NULL) {
+                    curr->right = new;
+                    return;
+                } else {
+                    insert_node(curr->right, new, level + 1);
+                }
+            }
+        } else {
+            if (new->data.yCoord < curr->data.yCoord) {
+                if (curr->left == NULL) {
+                    curr->left = new;
+                    return;
+                } else {
+                    insert_node(curr->left, new, level + 1);
+                }
+            } else {
+                if (curr->right == NULL) {
+                    curr->right = new;
+                    return;
+                } else {
+                    insert_node(curr->right, new, level + 1);
+                }
+            }
+        }
+    }
+}
+
+void 
+print2DUtil(node_t *root, int space, FILE *output) { 
+    // Base case 
+    if (root == NULL) 
+        return; 
+  
+    // Increase distance between levels 
+    space += COUNT; 
+  
+    // Process right child first 
+    print2DUtil(root->right, space, output); 
+  
+    // Print current node after space 
+    // count 
+    // printf("\n"); 
+    fputs("\n", output);
+    for (int i = COUNT; i < space; i++) 
+        //printf(" ");
+        fputs(" ", output);
+    //printf("%s\n", root->data.location);
+    fputs(root->data.location, output);
+    fputs("\n", output);
+  
+    // Process left child 
+    print2DUtil(root->left, space, output); 
+} 
+  
+// Wrapper over print2DUtil() 
+void 
+print2D(node_t *root, FILE *output) { 
+   // Pass initial space count as 0 
+   print2DUtil(root, 0, output); 
+} 

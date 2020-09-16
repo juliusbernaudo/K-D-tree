@@ -88,21 +88,21 @@ int main(int argc, char **argv) {
              so that the data can be inserted into a node and the list */
             initialise_data(data, dataArray);
             insert_data(data, dataArray);
-            list = insert_at_foot(list, data);
+            list = insert_in_tree(list, data);
             free(data);
         }
     }
-    
+    /*print2D(list->head, output);*/
     /* Linked list is created now to read the keys from stdin and search through the data
      for any matches whilst handling any \n that may come along*/
-    while (fgets(key, sizeof(key), stdin)) {
+    /*while (fgets(key, sizeof(key), stdin)) {
         int keylen = strlen(key);
         if (key[keylen-1] == '\n' || key[keylen] == '\n') {
             key[keylen-1] = '\0';
         }
         search_data(list, key, output, titles);
-    }
-    free_list(list);
+    }*/
+    /*free_list(list);*/
 	fclose(fp);
 	fclose(output);
     return 0;
