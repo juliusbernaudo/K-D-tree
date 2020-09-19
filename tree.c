@@ -114,31 +114,27 @@ initialise_data(data_t *data, char dataArray[MAX_TITLES][MAX_BUFFER]) {
 }
 
 /* Scans through the list searching for any string matches with the key */
-/*void
+void
 search_data(list_t *list, char *key, FILE *output, char titles[MAX_TITLES][FIELD_LEN]) {
-    int cmpResult;
-    int matchFound = 1;
+    int cmpResult, matchFound = 1, count = 0;
+    char* xptr;
+    char* yptr;
+    char* str;
+    double keys[DEPTH];
+    str = strtok(key, " ");
+    while (str) {
+        keys[count] = strtod(str, &xptr);
+        str = strtok(NULL, " ");
+        count++;
+    }
+    
     node_t *curr;
     curr = (node_t*)malloc(sizeof(*curr));
     assert(curr!=NULL);
-    curr = list -> head; */
+    curr = list -> head;
     
-    /* Traversing the linked list and using the string comparison tool 
-    to check whether the key and name match */
-    /*while(curr) {
-        cmpResult = strcmp(curr -> data.name, key);
-        if (cmpResult == 0) {
-            output_string(&(curr -> data), output, titles);
-            matchFound = cmpResult;
-        }
-        curr = curr -> next;
-    }
-    free(curr);
-    if (matchFound != 0) {
-        fputs(key, output);
-        fputs(" -->NOTFOUND\n", output);
-    }
-} */
+   
+}
 
 /* Removing any double quotations from the data while maintaining
 any quotations that are part of the string itself */
@@ -280,8 +276,48 @@ insert_node(node_t *curr, node_t *new, int level) {
     }
 }
 
+void
+calculate_distance(node_t *key, node_t *node, node_t *closestPoint int level, double *closestDistance, int *comparisons) {
+    if (node == NULL) {
+        return;
+    }
+    *comparisons =+ 1
+    double distance = sqrt(pow(node->data.xCoord - key->data.xCoord) + pow(node->data.yCoord - key->data.yCoord));
+    double xDistance = fabs(node->data.xCoord - key->data.xCoord);
+    double yDistance = fabs(node->data.yCoord - key->data.yCoord);
+    
+    if (distance < closestDistance) {
+        *closestDistance = distance;
+        *closestPoint = node;
+    }
+    if (level % DEPTH == 0) {
+        if (node->data.xCoord > xDistance) {
+            if (node->data.xCoord < key->data.xCoord) {
+                calculate_distance(key, node->right, &closestPoint, level+1, &closestDistance); 
+            } else {
+                calculate_distance(key, node->left, &closestPoint, level+1, &closestDistance); 
+            }
+        } else {
+            calculate_distance(key, node->right, &closestPoint, level+1, &closestDistance);
+            calculate_distance(key, node->left, &closestPoint, level+1, &closestDistance);
+        }
+    } else {
+        if (node->data.yCoord > yDistance) {
+            if (node->data.yCoord < key->data.yCoord) {
+                calculate_distance(key, node->right, &closestPoint, level+1, &closestDistance);
+            } else {
+                calculate_distance(key, node->left, &closestPoint, level+1, &closestDistance);
+            }
+        } else {
+            calculate_distance(key, node->right, &closestPoint, level+1, &closestDistance);
+            calculate_distance(key, node->left, &closestPoint, level+1, &closestDistance);
+        }
+    }
+}
+
 void 
-print2DUtil(node_t *root, int space, FILE *output) { 
+print2DUtil(node_t *root, int space, FILE *output) {
+
     // Base case 
     if (root == NULL) 
         return; 
@@ -294,12 +330,12 @@ print2DUtil(node_t *root, int space, FILE *output) {
   
     // Print current node after space 
     // count 
-    // printf("\n"); 
-    fputs("\n", output);
-    for (int i = COUNT; i < space; i++) 
-        //printf(" ");
-        fputs(" ", output);
-    //printf("%s\n", root->data.location);
+    printf("\n"); 
+    for (int i = COUNT; i < space; i++) {
+        printf(" ");
+    }
+    
+    printf("%s\n", root->data.location);
     fputs(root->data.location, output);
     fputs("\n", output);
   

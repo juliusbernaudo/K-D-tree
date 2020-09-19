@@ -92,17 +92,17 @@ int main(int argc, char **argv) {
             free(data);
         }
     }
-    /*print2D(list->head, output);*/
+    // print2D(list->head, output);
     /* Linked list is created now to read the keys from stdin and search through the data
      for any matches whilst handling any \n that may come along*/
-    /*while (fgets(key, sizeof(key), stdin)) {
+    while (fgets(key, sizeof(key), stdin)) {
         int keylen = strlen(key);
         if (key[keylen-1] == '\n' || key[keylen] == '\n') {
             key[keylen-1] = '\0';
         }
         search_data(list, key, output, titles);
-    }*/
-    /*free_list(list);*/
+    }
+    // free_list(list);
 	fclose(fp);
 	fclose(output);
     return 0;

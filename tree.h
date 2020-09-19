@@ -43,6 +43,7 @@ void filter_newline(char *array);
 void filter_quotations(char *array);
 void output_string(data_t *data, FILE *output, char titles[MAX_TITLES][FIELD_LEN]);
 void insert_node(node_t *curr, node_t *new, int level);
+void calculate_distance(node_t *key, node_t *node, node_t *closestPoint int level, double *closestDistance);
 
 void print2DUtil(node_t *root, int space, FILE *output);
 void print2D(node_t *root, FILE *output);
