@@ -1,1 +1,2 @@
-./map1 file.csv output.txt < keyinput.txt
+./map1 random.csv output.txt < keyinput.txt
+./map2 random.csv output2.txt < keyinput2.txt
