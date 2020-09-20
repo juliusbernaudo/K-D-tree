@@ -6,13 +6,14 @@
 #include <stddef.h>
 #include <math.h>
 #include "tree.h"
+#include "format.h"
 #define MAX_BUFFER 513
 #define FIELD_LEN 129
 #define MAX_TITLES 11
 
 /* Created by Julius Miguel Bernaudo 30/08/2020  (jbernaudo@student.unimelb.edu.au) 
 
-Store the data from a csv file into a linked list and search through the data using keys from the stdin and outputting the results to an output text file */
+Store the data from a csv file into a K-D tree and search through the data using keys from the stdin and outputting the results to an output text file */
 int main(int argc, char **argv) {
     FILE *fp;
 	FILE *output;
@@ -33,7 +34,7 @@ int main(int argc, char **argv) {
     assert(fp);
     
     while(fgets(line, MAX_BUFFER, fp)) {
-        int count = 0;
+        int count = 0, wordLen = 0;
         data_t *data;
         data = (data_t*)malloc(sizeof(*data));
         char *str;
@@ -56,10 +57,24 @@ int main(int argc, char **argv) {
         } else {
             /* Collecting the inputs from the csv by line and splitting up into tokens */
             while(str) {
+                strcpy(tmpArray, str);
+                wordLen = strlen(tmpArray);
                 /* This is to check if the description or name contains a "," 
                 and the rest of the functionality is to remove double quotes and store
                 the data */
                 if (str[0] == 32 && (count == 8 || count == 6)) {
+                    count = count - 1;
+                    strcat(dataArray[count], ",");
+                    strcpy(tmpArray, str);
+                    filter_quotations(tmpArray);
+                    strcat(dataArray[count], tmpArray);
+                } else if ((tmpArray[wordLen] == 34 || tmpArray[wordLen-1] == 34 || tmpArray[wordLen-2] == 34) && (count == 6)) {
+                    count = count - 1;
+                    strcat(dataArray[count], ",");
+                    strcpy(tmpArray, str);
+                    filter_quotations(tmpArray);
+                    strcat(dataArray[count], tmpArray);
+                } else if (str[0] > 64 && str[2] == 32 && count == 6) {
                     count = count - 1;
                     strcat(dataArray[count], ",");
                     strcpy(tmpArray, str);
@@ -92,9 +107,9 @@ int main(int argc, char **argv) {
             free(data);
         }
     }
-    // print2D(list->head, output);
-    /* Linked list is created now to read the keys from stdin and search through the data
-     for any matches whilst handling any \n that may come along*/
+
+    /* K-D tree is created, now to read the keys from stdin and search through the data
+     for the closest point whilst handling any \n that may come along*/
     while (fgets(key, sizeof(key), stdin)) {
         int keylen = strlen(key);
         if (key[keylen-1] == '\n' || key[keylen] == '\n') {
@@ -102,7 +117,8 @@ int main(int argc, char **argv) {
         }
         search_data(list, key, output, titles);
     }
-    // free_list(list);
+    free_list(list->head);
+    free(list);
 	fclose(fp);
 	fclose(output);
     return 0;
